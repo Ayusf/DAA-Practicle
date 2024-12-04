@@ -1,49 +1,52 @@
 #include <iostream>
 #include <vector>
+#include <set>
+#include <algorithm>
+
 using namespace std;
 
-void calcSubset(vector<int>& A, vector<vector<int> >& res,
-                vector<int>& subset, int index)
-{
-    // Add the current subset to the result list
-    res.push_back(subset);
-
-    // Generate subsets by recursively including and
-    // excluding elements
-    for (int i = index; i < A.size(); i++) {
-        // Include the current element in the subset
-        subset.push_back(A[i]);
-
-        // Recursively generate subsets with the current
-        // element included
-        calcSubset(A, res, subset, i + 1);
-
-        // Exclude the current element from the subset
-        // (backtracking)
-        subset.pop_back();
+vector<vector<int>> findSubsets(vector<int>& arr) {
+    // Sort the array to handle duplicates
+    sort(arr.begin(), arr.end());
+    
+    // Total number of subsets: 2^n
+    int n = arr.size();
+    int totalSubsets = 1 << n; // 2^n
+    set<vector<int>> uniqueSubsets; // To store unique subsets
+    
+    // Generate subsets using bit masking
+    for (int mask = 0; mask < totalSubsets; mask++) {
+        vector<int> subset;
+        for (int i = 0; i < n; i++) {
+            // Check if the i-th bit in the mask is set
+            if (mask & (1 << i)) {
+                subset.push_back(arr[i]);
+            }
+        }
+        uniqueSubsets.insert(subset); // Add subset to the set
     }
+    
+    // Convert set to vector for output
+    vector<vector<int>> result(uniqueSubsets.begin(), uniqueSubsets.end());
+    return result;
 }
 
-vector<vector<int> > subsets(vector<int>& A)
-{
-    vector<int> subset;
-    vector<vector<int> > res;
-    int index = 0;
-    calcSubset(A, res, subset, index);
-    return res;
-}
+int main() {
+    // Input array
+    vector<int> arr = {1, 2, 2};
 
-// Driver code
-int main()
-{
-    vector<int> array = { 1, 2, 3 };
-    vector<vector<int> > res = subsets(array);
+    // Find subsets
+    vector<vector<int>> subsets = findSubsets(arr);
 
-    // Print the generated subsets
-    for (int i = 0; i < res.size(); i++) {
-        for (int j = 0; j < res[i].size(); j++)
-            cout << res[i][j] << " ";
-        cout << endl;
+    // Output the subsets
+    cout << "Subsets:" << endl;
+    for (const auto& subset : subsets) {
+        cout << "(";
+        for (int i = 0; i < subset.size(); i++) {
+            cout << subset[i];
+            if (i != subset.size() - 1) cout << ",";
+        }
+        cout << ")" << endl;
     }
 
     return 0;
